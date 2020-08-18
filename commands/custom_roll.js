@@ -28,55 +28,31 @@ module.exports = {
     }
 
     //below section handles bonus and descriptor info
-
     let bonusRegex = /^[+-]\d*/;
     let descRegex = /^[#]/;
 
-    let bnsInd = args.findIndex(arg => arg.match(bonusRegex)) || null;
-    let descInd = args.findIndex(arg => arg.match(descRegex)) || null;
-
-    bnsInd = bnsInd < 0 ? undefined : bnsInd;
-    descInd = descInd < 0 ? undefined : descInd;
-
-
-    if(bnsInd && descInd && bnsInd < descInd){
-      rollBonus = parseInt(args[bnsInd]);
-      rollBonus = isNaN(rollBonus) ? 0 : rollBonus;
-    }
-
+    console.log(new Date(), findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin));
+    let helper = findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin);
+    console.log(new Date(), helper);
     
-
-    console.log('rollBonus', rollBonus);
-
-    let rollResult = Math.floor(Math.random() * (dieMax - dieMin + 1) + dieMin) + rollBonus ;
-    // let {rollResult, description, errorMsg} = findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin);
-
-    rollResult = rollResult <= 0 ? 1 : rollResult;
-
-    let rollNotes = `Rolling 1d${dieMax}`;
-    if(rollBonus != 0){
-      rollNotes += rollBonus > 0 ? `+${rollBonus}` : `${rollBonus}`;
-    }
-
-    // if(errorMsg){
-    //   msg.reply(errorMsg);
-    //   return;
-    // }
-
-    if(bnsInd && descInd && descInd < bnsInd){
-      msg.reply("Declare any bonus to the roll prior to descriptive text.");
+    if(helper.errorMsg){
+      msg.reply(helper.errorMsg);
       return;
     }
+    
+    helper.rollResult = helper.rollResult <= 0 ? 1 : helper.rollResult;
 
-
-    if(descInd) description = args.slice(descInd).join(' ').substr(1);
+    let rollNotes = `Rolling 1d${dieMax}`;
+    if(helper.rollBonus != 0){
+      rollNotes += helper.rollBonus > 0 ? `+${helper.rollBonus}` : `${helper.rollBonus}`;
+    }
 
     rollResultEmbed
       .setTitle(`Custom Roll`)
       .setDescription("")
       .setColor(`#0062ff`)
       .addFields(
-        { name: `${rollNotes} => `, value: `${rollResult}!`}
+        { name: `${rollNotes} => `, value: `${helper.rollResult}!`}
       );
 
     let y = JSON.stringify(msg.guild.members.cache);
@@ -90,10 +66,10 @@ module.exports = {
     
 
     rollResultEmbed
-    .setDescription(description ? description : "");
+    .setDescription(helper.description ? helper.description : "");
 
     msg.channel.send(rollResultEmbed);
 
     return;
 }
-}
+};

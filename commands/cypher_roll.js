@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
 require('dotenv').config();
+const findBonusAndDescription = require('../lib/findBnsAndDesc.js');
+
 
 module.exports = {
 
@@ -28,56 +30,47 @@ module.exports = {
 
     let success;
     let taskRange = /[0-9]|10/i;
-    let bonusRegex = /^[+-]\d*/;
     let targetNumber = args[0] * 3;
-    let descRegex = /^[#]/;
-    let description = null;
     
     if(!args[0].match(taskRange)) {msg.reply('First value must be a number between 0 and 10'); return};
 
-    let bnsInd = args.findIndex(arg => arg.match(bonusRegex)) || null;
-    let descInd = args.findIndex(arg => arg.match(descRegex)) || null;
+    let bonusRegex = /^[+-]\d*/;
+    let descRegex = /^[#]/;
 
-    bnsInd = bnsInd < 0 ? undefined : bnsInd;
-    descInd = descInd < 0 ? undefined : descInd;
-
+    console.log(new Date(), findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin));
+    let helper = findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin);
+    console.log(new Date(), helper);
     
-    if(bnsInd && descInd && bnsInd < descInd){
-      rollBonus = parseInt(args[bnsInd]);
-    }
-
-    if(bnsInd && descInd && descInd < bnsInd){
-      msg.reply("Declare any bonus to the roll prior to descriptive text.");
+    if(helper.errorMsg){
+      msg.reply(helper.errorMsg);
       return;
     }
 
-    let rollResult = Math.floor(Math.random() * (dieMax - dieMin + 1) + dieMin) + parseInt(rollBonus);
-    
-    if(descInd) description = args.slice(descInd).join(' ').substr(1);
-    
+
+       
     // task high level
     rollResultEmbed
       .setTitle(`Task Level: ${taskLevel}`)
     
 
     let rollBreakdown = `1d${dieMax}`;
-    if(rollBonus != 0){
-      rollBreakdown += rollBonus > 0 ? `+${rollBonus}` : `${rollBonus}`;
+    if(helper.rollBonus != 0){
+      rollBreakdown += helper.rollBonus > 0 ? `+${helper.rollBonus}` : `${helper.rollBonus}`;
     }
-    rollBreakdown += ` => ${rollResult} vs TN ${targetNumber} => `;
+    rollBreakdown += ` => ${helper.rollResult} vs TN ${targetNumber} => `;
 
-    success = rollResult>=targetNumber ? true : false;
+    success = helper.rollResult>=targetNumber ? true : false;
 
     let outcome = success ? `Success!` : `Fail!`;
     
     rollResultEmbed
-    .setDescription(description ? description : "")
+    .setDescription(helper.description ? helper.description : "")
     .addFields(
         { name: rollBreakdown, value: outcome },
     )
     .setColor(success ? successColor : failColor);
 
-    switch(rollResult){
+    switch(helper.rollResult){
       case 1:{
         rollResultEmbed
         .addFields(
