@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 require('dotenv').config();
+const findBonusAndDescription = require('../lib/findBnsAndDesc.js');
 
 module.exports = {
 
@@ -7,6 +8,9 @@ module.exports = {
   name: '$d',
   description: 'Custom Roll',
   async execute(msg, args) {
+
+    console.log('args', args);
+
     const client = process.env.CLIENT;
 
 
@@ -16,39 +20,37 @@ module.exports = {
     const dieMin = 1;
     const dieMax = args[0];
     let rollBonus = 0;
+    // let description = null;
 
     if(dieMax <= 1) {
       msg.reply(`Please provide a die size larger than 1`);
       return;
     }
 
-    let bonusRegex = /^[+-]/;
+    //below section handles bonus and descriptor info
+    let bonusRegex = /^[+-]\d*/;
+    let descRegex = /^[#]/;
 
-    // if(args[0] && !args[0].match(taskRange)) {msg.reply('First value must be a number.'); return};
-
-    if(args[1] && args[1].match(bonusRegex)){
-      rollBonus = parseInt(args[1]);
-    }else if(args[1] && !args[1].match(bonusRegex)){
-      msg.reply("Please indicate a + or - number for the bonus and try again");
+    let helper = findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin);
+    
+    if(helper.errorMsg){
+      msg.reply(helper.errorMsg);
       return;
     }
-
-    let rollResult = Math.floor(Math.random() * (dieMax - dieMin + 1) + dieMin) + parseInt(rollBonus);
-
-    rollResult = rollResult < 0 ? 1 : rollResult;
+    
+    helper.rollResult = helper.rollResult <= 0 ? 1 : helper.rollResult;
 
     let rollNotes = `Rolling 1d${dieMax}`;
-    if(rollBonus != 0){
-      rollNotes += rollBonus > 0 ? `+${rollBonus}` : `${rollBonus}`;
+    if(helper.rollBonus != 0){
+      rollNotes += helper.rollBonus > 0 ? `+${helper.rollBonus}` : `${helper.rollBonus}`;
     }
-
 
     rollResultEmbed
       .setTitle(`Custom Roll`)
       .setDescription("")
       .setColor(`#0062ff`)
       .addFields(
-        { name: `${rollNotes} => `, value: `${rollResult}!`}
+        { name: `${rollNotes} => `, value: `${helper.rollResult}!`}
       );
 
     let y = JSON.stringify(msg.guild.members.cache);
@@ -58,23 +60,14 @@ module.exports = {
 
     rollResultEmbed
       .setFooter(`In response to ${z}`);
-
-    let descriptorReg = /^#/;
-
-    let descriptorStart = null;
-    for(let x = 0; x < args.length; x++){
-      if(args[x].match(descriptorReg)){
-        descriptorStart = x;
-      }
-    }
     
-    if(descriptorStart) description = args.slice(descriptorStart).join(' ').substr(1);
+    
 
     rollResultEmbed
-    .setDescription(description ? description : "");
+    .setDescription(helper.description ? helper.description : "");
 
     msg.channel.send(rollResultEmbed);
 
     return;
 }
-}
+};
