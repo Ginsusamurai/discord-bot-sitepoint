@@ -31,9 +31,7 @@ module.exports = {
     let bonusRegex = /^[+-]\d*/;
     let descRegex = /^[#]/;
 
-    console.log(new Date(), findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin));
     let helper = findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin);
-    console.log(new Date(), helper);
     
     if(helper.errorMsg){
       msg.reply(helper.errorMsg);
