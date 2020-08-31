@@ -37,9 +37,7 @@ module.exports = {
     let bonusRegex = /^[+-]\d*/;
     let descRegex = /^[#]/;
 
-    console.log(new Date(), findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin));
     let helper = findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin);
-    console.log(new Date(), helper);
     
     if(helper.errorMsg){
       msg.reply(helper.errorMsg);
@@ -112,7 +110,7 @@ module.exports = {
     let y = JSON.stringify(msg.guild.members.cache);
     let q = JSON.parse(y).find(ele => ele.userID = msg.author.id);
     let z = q.displayName;
-    console.log(z);
+    // console.log(z);
 
     rollResultEmbed
       .setFooter(`In response to ${z}`);
