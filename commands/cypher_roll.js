@@ -1,13 +1,13 @@
-const Discord = require('discord.js');
-require('dotenv').config();
-const findBonusAndDescription = require('../lib/findBnsAndDesc.js');
+const Discord = require(`discord.js`);
+require(`dotenv`).config();
+const findBonusAndDescription = require(`../lib/findBnsAndDesc.js`);
 
 
 module.exports = {
 
 
-  name: '$t',
-  description: 'Task Roll',
+  name: `$t`,
+  description: `Task Roll`,
   async execute(msg, args) {
     const client = process.env.CLIENT;
 
@@ -32,7 +32,7 @@ module.exports = {
     let taskRange = /[0-9]|10/i;
     let targetNumber = args[0] * 3;
     
-    if(!args[0].match(taskRange)) {msg.reply('First value must be a number between 0 and 10'); return};
+    if(!args[0].match(taskRange)) {msg.reply(`First value must be a number between 0 and 10`); return};
 
     let bonusRegex = /^[+-]\d*/;
     let descRegex = /^[#]/;
