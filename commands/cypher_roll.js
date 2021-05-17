@@ -39,6 +39,7 @@ module.exports = {
 
     let helper = findBonusAndDescription(args, bonusRegex, descRegex, dieMax, dieMin);
     
+
     if(helper.errorMsg){
       msg.reply(helper.errorMsg);
       return;
@@ -50,6 +51,7 @@ module.exports = {
     rollResultEmbed
       .setTitle(`Task Level: ${taskLevel}`)
     
+      console.log('3')
 
     let rollBreakdown = `1d${dieMax}`;
     if(helper.rollBonus != 0){
@@ -67,6 +69,7 @@ module.exports = {
         { name: rollBreakdown, value: outcome },
     )
     .setColor(success ? successColor : failColor);
+
 
     switch(helper.rollResult){
       case 1:{
@@ -107,13 +110,19 @@ module.exports = {
       }  
     }
     
-    let y = JSON.stringify(msg.guild.members.cache);
-    let q = JSON.parse(y).find(ele => ele.userID = msg.author.id);
-    let z = q.displayName;
-    // console.log(z);
 
+    let y = JSON.stringify(msg.guild.members.cache);
+    // console.log("member cache", y)
+    // console.log('msg', msg.author.id)
+    let q = JSON.parse(y).find(ele => ele.userID == msg.author.id);
+    // console.log("authorID", q)
+    let z = q.displayName;
+    // console.log("name", z)
+    // console.log(y,q,z);
+    
     rollResultEmbed
       .setFooter(`In response to ${z}`);
+
 
     msg.channel.send(rollResultEmbed);
     
